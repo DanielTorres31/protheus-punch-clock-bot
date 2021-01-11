@@ -23,24 +23,29 @@ const PunchInController = {
     async punchIn(page: Page, days: string[]) {
         logger.trace('Punching to clock...')
 
-        const entryTime = await this._punchIn(page, days[0], PUNCH_TYPE.IN)
+        for (const day of days) {
+            const entryTime = await this._punchIn(page, day, PUNCH_TYPE.IN)
 
-        await page.waitForSelector(this._config.selectors.dayLink)
+            await page.waitForSelector(this._config.selectors.dayLink)
 
-        const exitTime = await this._punchIn(
-            page,
-            days[0],
-            PUNCH_TYPE.OUT,
-            entryTime
-        )
-        logger.trace(
-            'Launched day',
-            days[0],
-            '. Entry:',
-            entryTime,
-            '. Exit: ',
-            exitTime
-        )
+            const exitTime = await this._punchIn(
+                page,
+                day,
+                PUNCH_TYPE.OUT,
+                entryTime
+            )
+
+            await page.waitForSelector(this._config.selectors.dayLink)
+
+            logger.trace(
+                'Launched day',
+                day,
+                '- Entry:',
+                entryTime,
+                '- Exit: ',
+                exitTime
+            )
+        }
     },
 
     async _punchIn(
@@ -56,6 +61,7 @@ const PunchInController = {
         })
 
         await page.waitForSelector(this._config.selectors.time)
+        await page.waitForSelector(this._config.selectors.justification)
 
         let time
         if (punchType === PUNCH_TYPE.IN) {
@@ -63,22 +69,22 @@ const PunchInController = {
         } else if (punchType === PUNCH_TYPE.OUT) {
             time = this._addsHoursWorked(entryTime)
         } else {
-            throw new Error('Não foi possível obter a data')
+            throw new Error("Couldn't get date")
         }
 
         await page.type(this._config.selectors.time, time)
         await page.type(this._config.selectors.justification, 'X')
 
-        // TODO será substituído pelo botão de salvar
         await page.click(this._config.selectors.backButton)
 
         return time
     },
 
     async _navigatesToPunchInClockPage(page: Page, day: string) {
-        addNormalizeHTMLTextOnWindow(page)
-
+        await page.waitForSelector(this._config.selectors.dayLink)
         const links = await page.$$(this._config.selectors.dayLink)
+
+        await addNormalizeHTMLTextOnWindow(page)
 
         let dayLink
         for (const link of links) {
@@ -91,7 +97,11 @@ const PunchInController = {
             }
         }
 
-        await dayLink?.click()
+        if (!dayLink) {
+            throw new Error('Day not finded.')
+        }
+
+        await dayLink.click()
     },
 
     _getRandomTime() {
