@@ -14,11 +14,12 @@ main()
 async function main() {
     logger.trace('Starting Chromium...')
     const browser = await puppeteer.launch({ headless: false })
+
     try {
         const pages = await browser.pages()
         const page = pages[0]
 
-        skipStylesRequests(page)
+        abortStylesRequests(page)
 
         await LoginController.login(page)
 
@@ -35,7 +36,7 @@ async function main() {
     }
 }
 
-function skipStylesRequests(page: Page) {
+function abortStylesRequests(page: Page) {
     page.setRequestInterception(true)
     page.on('request', (request: any) => {
         if (
