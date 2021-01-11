@@ -4,6 +4,8 @@ dotenv.config()
 import * as puppeteer from 'puppeteer'
 import { Page } from 'puppeteer'
 import LoginController from './controllers/LoginController'
+import TimeclockController from './controllers/TimeclockController'
+import PunchInController from './controllers/PunchInController'
 
 main()
 async function main() {
@@ -15,6 +17,10 @@ async function main() {
         skipStylesRequests(page)
 
         await LoginController.login(page)
+
+        const days = await TimeclockController.getDaysToPunchInClock(page)
+
+        await PunchInController.punchIn(page, days)
 
         await browser.close()
     } catch (err) {
