@@ -3,12 +3,16 @@ dotenv.config()
 
 import * as puppeteer from 'puppeteer'
 import { Page } from 'puppeteer'
+import Logger from './config/Logger'
 import LoginController from './controllers/LoginController'
 import TimeclockController from './controllers/TimeclockController'
 import PunchInController from './controllers/PunchInController'
 
+const logger = Logger.getLogger()
+
 main()
 async function main() {
+    logger.trace('Starting Chromium...')
     const browser = await puppeteer.launch({ headless: false })
     try {
         const pages = await browser.pages()
@@ -21,10 +25,12 @@ async function main() {
         const days = await TimeclockController.getDaysToPunchInClock(page)
 
         await PunchInController.punchIn(page, days)
+        logger.trace('Successfully concluded')
 
+        logger.trace('Closing Chromium...')
         await browser.close()
     } catch (err) {
-        console.error(err)
+        logger.error(err)
         await browser.close()
     }
 }

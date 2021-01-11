@@ -1,12 +1,15 @@
 import { ElementHandle, Page } from 'puppeteer'
 import ProtheusConfig from '../config/ProtheusConfig'
 import { addNormalizeHTMLTextOnWindow, isWeekday } from '../commons'
+import Logger from '../config/Logger'
 
 declare global {
     interface Window {
         normalizeHTMLText: (str: string) => string
     }
 }
+
+const logger = Logger.getLogger()
 
 const TimeclockController = {
     _config: {
@@ -18,6 +21,7 @@ const TimeclockController = {
     },
 
     async getDaysToPunchInClock(page: Page) {
+        logger.trace('Getting days to launchs...')
         await page.goto(this._config.URL)
 
         await this._navigatesToPunchInClockPage(page)

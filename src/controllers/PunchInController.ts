@@ -1,10 +1,13 @@
 import { Page } from 'puppeteer'
 import { addNormalizeHTMLTextOnWindow, randomInt } from '../commons'
+import Logger from '../config/Logger'
 
 enum PUNCH_TYPE {
     IN = 0,
     OUT = 1,
 }
+
+const logger = Logger.getLogger()
 
 const PunchInController = {
     _config: {
@@ -18,6 +21,8 @@ const PunchInController = {
     },
 
     async punchIn(page: Page, days: string[]) {
+        logger.trace('Punching to clock...')
+
         const entryTime = await this._punchIn(page, days[0], PUNCH_TYPE.IN)
 
         await page.waitForSelector(this._config.selectors.dayLink)
@@ -27,6 +32,14 @@ const PunchInController = {
             days[0],
             PUNCH_TYPE.OUT,
             entryTime
+        )
+        logger.trace(
+            'Launched day',
+            days[0],
+            '. Entry:',
+            entryTime,
+            '. Exit: ',
+            exitTime
         )
     },
 
