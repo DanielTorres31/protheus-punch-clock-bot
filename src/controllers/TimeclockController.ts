@@ -15,7 +15,7 @@ const TimeclockController = {
     _config: {
         URL: ProtheusConfig.BASE_URL + '/portal/W_PWSA400.APW',
         selectors: {
-            punchInClockLink: 'a.links',
+            punchInClockLink: 'td.info-cent > a.links',
             dayLink: 'td.info-cent > a.links',
         },
     },
