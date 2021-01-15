@@ -38,7 +38,7 @@ const TimeclockController = {
         await page.waitForNavigation()
         await page.waitForSelector(this._config.selectors.dayLink)
 
-        addNormalizeHTMLTextOnWindow(page)
+        await addNormalizeHTMLTextOnWindow(page)
 
         const daysLinks = await page.$$(this._config.selectors.dayLink)
         const weekdaysLinks = await this._filterBusinessDays(daysLinks)
