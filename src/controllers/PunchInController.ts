@@ -75,7 +75,11 @@ const PunchInController = {
         await page.type(this._config.selectors.time, time)
         await page.type(this._config.selectors.justification, 'X')
 
-        await page.click(this._config.selectors.backButton)
+        if (process.env.PROTHEUS_TEST_MODE === 'ON') {
+            await page.click(this._config.selectors.backButton)
+        } else {
+            await page.click(this._config.selectors.submitButton)
+        }
 
         return time
     },
