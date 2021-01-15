@@ -1,5 +1,7 @@
 import { ElementHandle, Page } from 'puppeteer'
 
+const HOLIDAYS = (process.env.PROTHEUS_HOLIDAYS || '').split(',')
+
 export const addNormalizeHTMLTextOnWindow = async (page: Page) => {
     await page.evaluate(() => {
         window.normalizeHTMLText = (str: string) => {
@@ -11,7 +13,7 @@ export const addNormalizeHTMLTextOnWindow = async (page: Page) => {
     })
 }
 
-export const isWeekday = async (dayLink: ElementHandle<Element>) => {
+export const isBusinessDay = async (dayLink: ElementHandle<Element>) => {
     const stringDate = await dayLink.evaluate(dayLink =>
         window.normalizeHTMLText(dayLink.textContent || '')
     )
@@ -20,7 +22,12 @@ export const isWeekday = async (dayLink: ElementHandle<Element>) => {
     const SUNDAY = 0
 
     const date = parseDate(stringDate)
-    return date.getDay() !== SATURDAY && date.getDay() !== SUNDAY
+
+    const isWeekday = date.getDay() !== SATURDAY && date.getDay() !== SUNDAY
+
+    const isHoliday = HOLIDAYS.includes(stringDate)
+
+    return isWeekday && !isHoliday
 }
 
 export const parseDate = (date: string) => {

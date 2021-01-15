@@ -1,6 +1,6 @@
 import { ElementHandle, Page } from 'puppeteer'
 import ProtheusConfig from '../config/ProtheusConfig'
-import { addNormalizeHTMLTextOnWindow, isWeekday } from '../commons'
+import { addNormalizeHTMLTextOnWindow, isBusinessDay } from '../commons'
 import Logger from '../config/Logger'
 
 declare global {
@@ -41,15 +41,15 @@ const TimeclockController = {
         addNormalizeHTMLTextOnWindow(page)
 
         const daysLinks = await page.$$(this._config.selectors.dayLink)
-        const weekdaysLinks = await this._filterWeekdays(daysLinks)
+        const weekdaysLinks = await this._filterBusinessDays(daysLinks)
 
         return weekdaysLinks
     },
 
-    async _filterWeekdays(daysLinks: ElementHandle[]) {
+    async _filterBusinessDays(daysLinks: ElementHandle[]) {
         const weekdays = []
         for (const dayLink of daysLinks) {
-            if (await isWeekday(dayLink)) {
+            if (await isBusinessDay(dayLink)) {
                 weekdays.push(
                     await dayLink.evaluate(dayLink =>
                         window.normalizeHTMLText(dayLink.textContent || '')
